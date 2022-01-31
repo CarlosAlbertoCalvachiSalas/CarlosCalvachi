@@ -1,0 +1,6 @@
+Buenas profe, 
+
+De no servir el notebook, le agradecería correr usando python3. Me corrió con éxito con Python 3.9.7, numpy 1.22.1 y  matplotlib 3.4.3.
+
+Saludos, 
+Carlos
