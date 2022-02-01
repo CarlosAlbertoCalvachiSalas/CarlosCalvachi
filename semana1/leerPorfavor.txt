@@ -1,6 +1,6 @@
 Buenas profe, 
 
-De no servir el notebook, le agradecería correr usando python3 el archivo .py. Me corrió con éxito con Python 3.9.7, numpy 1.22.1 y  matplotlib 3.4.3.
+De no servir el notebook, le agradecería correr usando python3 el archivo tarea1.py. Me corrió con éxito con Python 3.9.7, numpy 1.22.1 y  matplotlib 3.4.3 desde la consola de la computadora.
 
 Saludos, 
 Carlos
