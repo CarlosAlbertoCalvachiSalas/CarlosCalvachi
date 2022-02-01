@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.animation as anim
 from tqdm import tqdm 
+from scipy.optimize import curve_fit
 
 
 # Punto 1
@@ -271,6 +272,71 @@ Animation = anim.FuncAnimation(fig, lambda i: Update(i, Particles = [dampedParti
 plt.show()
 plt.close()
 
+print('Ahora, se puede barrer por más tiempo con el método modificado')
+
+dt = 0.01
+tmax = 100
+t = np.arange(0,tmax+dt,dt)
+
+r0 = np.array([-15., 5.])
+v0 = np.array([1., 0.])
+a0  = np.array([0., -9.8])
+
+dampedParticle2 = RunDampedBallSimulation(t, r0, v0, a0, 0.9, Limits, 30, method = 0)
+
+plt.plot(t, dampedParticle2.GetMechanicalEnergy(), label = 'CheckWallLimits modificado')
+plt.ylabel('Energía mecánica J(s)')
+plt.xlabel('t(s)')
+plt.legend()
+plt.show()
+
+
+print('Se imprimen las posiciones')
+
+tmax = 100
+t = np.arange(0,tmax+dt,dt)
+
+y = dampedParticle2.GetPositionVector()[:, 1]
+
+plt.xlabel('t(s)')
+plt.ylabel('y(m)')
+plt.plot(t, y)
+plt.show()
+
+
+print('Se calculan los maximos')
+
+ycenter = y[1:len(y)-1] # No hay maximos en los extremos
+yleft = y[:len(y)-2]
+yright = y[2:]
+
+cond = (ycenter > yleft) & (ycenter > yright) # condicion
+
+yMax = np.append([5], ycenter[cond]) #
+tMax = np.append([0], t[1:len(t)-1][cond])
+
+plt.scatter(tMax, yMax, s = 10, color = 'green')
+plt.axhline(-19, color = 'black')
+plt.xlabel('t(s)')
+plt.ylabel(r'$y_{max}(m)$')
+
+
+
+exponential = lambda t, A, l,  b: A*np.exp(-l*t) + b
+
+coeff, mat = curve_fit(exponential , tMax[tMax < 40], yMax[tMax < 40])
+
+yfit = exponential(t, *coeff)
+plt.plot(t, yfit , color = 'blue')
+plt.show()
+
+
+print('Tiempos de detenimiento')
+
+print('tiempo de detenimiento por ajuste', t[np.abs(yfit + 19) == np.min(np.abs(yfit + 19))][0]) 
+print('tiempo de detenimiento simulación 1%', t[np.abs(y + 18.8) == np.min(np.abs(y + 18.8))][0]) 
+print('tiempo de detenimiento simulación 0.1%', t[np.abs(y + 18.98) == np.min(np.abs(y + 18.98))][0]) 
+
 # Punto 2
 
 Limits = np.array([10.,10.,10.])
@@ -288,19 +354,20 @@ ax = plt.axes(projection = '3d')
 
 
 def init3D():
-    ax.set_xlim(-Limits[0],Limits[0])
-    ax.set_ylim(-Limits[1],Limits[1])
-    ax.set_zlim(-Limits[2],Limits[2])
+
     ax.set_xlabel('x[m]')
     ax.set_ylabel('y[m]')
     ax.set_zlabel('z[m]')
-
 
 def Update3D(i, Particles = Particles):
     plot = ax.clear()
     init()
     ax.set_title(r'$t=%.2f \ seconds$' %(redt[i]), fontsize=15)
     
+    ax.set_xlim(-Limits[0],Limits[0])
+    ax.set_ylim(-Limits[1],Limits[1])
+    ax.set_zlim(-Limits[2],Limits[2])
+
     for p in Particles:
         x = p.GetRPositionVector()[i,0]
         y = p.GetRPositionVector()[i,1]
